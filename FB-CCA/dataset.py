@@ -1,126 +1,137 @@
 import os
 import mne
-from typing import List, Dict
+from typing import List
 
 class EEGDataset:
-    """Handles EEG data loading, preprocessing, and concatenation from multiple subjects in a dataset folder."""
+    """Handles EEG data loading, preprocessing, and concatenation from multiple subjects located within a dataset directory."""
 
-    # Global dictionary for non-EEG channel types.
+    # Mapping for expected non-EEG channels and their correct types.
     NON_EEG_CHANNELS = {
-        'HEOL': 'eog',
-        'HEOR': 'eog',
-        'HEOR-L': 'eog',
-        'VEOU': 'eog',
-        'VEOL-U': 'eog',
-        'EKG': 'ecg',
-        'Trigger': 'stim'
+        'HEOL': 'eog',       # Horizontal EOG left
+        'HEOR': 'eog',       # Horizontal EOG right
+        'HEOR-L': 'eog',     # Alternative horizontal EOG right-left
+        'VEOU': 'eog',       # Vertical EOG upper
+        'VEOL-U': 'eog',     # Alternative vertical EOG lower-upper
+        'EKG': 'ecg',        # Electrocardiogram
+        'Trigger': 'stim'    # Stimulus trigger
     }
+
+    # EEG channels specifically targeted for analysis.
+    CHANNELS_OF_INTEREST = ['O1', 'Oz', 'OZ', 'O2']
 
     def __init__(self, data_path: str):
         """
-        Initialize the dataset manager.
+        Initialize EEGDataset with the path to dataset.
 
         Parameters:
-        - data_path (str): Path to the dataset containing subject folders.
+        - data_path (str): Path to the root dataset directory containing subject-specific subdirectories.
         """
         self.data_path = data_path
         self.subjects = self._find_subjects()
-        self.raw_data = {}  # Dictionary to store each subject's raw EEG data
+        self.raw_data = {}  # Dictionary mapping subject IDs to their preprocessed raw EEG data.
 
     def _find_subjects(self) -> List[str]:
-        """Find all subject folders in the dataset path."""
-        return [f for f in os.listdir(self.data_path) if os.path.isdir(os.path.join(self.data_path, f))]
+        """Discover and list all subject directories within the dataset path."""
+        return [subj for subj in os.listdir(self.data_path)
+                if os.path.isdir(os.path.join(self.data_path, subj))]
 
     def load_all_subjects(self):
-        """Load and preprocess all subjects from the dataset folder."""
-        for subject in self.subjects:
-            raw = self.load_subject_data(subject)
-            if raw:
-                self.raw_data[subject] = raw
-                print(f"Successfully loaded and preprocessed {subject}.")
+        """Iteratively load and preprocess EEG data for all subjects in the dataset."""
+        for subject_id in self.subjects:
+            raw_subject_data = self.load_subject_data(subject_id)
+            if raw_subject_data:
+                self.raw_data[subject_id] = raw_subject_data
+                print(f"Successfully loaded and preprocessed data for subject: {subject_id}")
 
     def load_subject_data(self, subject_id: str) -> mne.io.Raw:
         """
-        Load and preprocess EEG data for a given subject.
+        Load and preprocess EEG data for a specific subject.
 
         Parameters:
-        - subject_id (str): Subject folder name.
+        - subject_id (str): Identifier corresponding to the subject's data directory.
 
         Returns:
-        - raw (mne.io.Raw): Preprocessed raw EEG data.
+        - raw (mne.io.Raw): Preprocessed EEG data object or None if no valid data found.
         """
-        subject_path = os.path.join(self.data_path, subject_id)
-        files = [f for f in os.listdir(subject_path) if f.endswith('.cnt')]
+        subject_dir = os.path.join(self.data_path, subject_id)
+        cnt_files = [file for file in os.listdir(subject_dir) if file.endswith('.cnt')]
 
-        if not files:
+        if not cnt_files:
             print(f"No CNT files found for subject {subject_id}.")
             return None
 
-        file_paths = [os.path.join(subject_path, f) for f in files]
-        raw = self.combine_raw_files(file_paths)
-        return raw
+        file_paths = [os.path.join(subject_dir, file) for file in cnt_files]
+        combined_raw = self.combine_raw_files(file_paths)
 
-    def load_and_preprocess_file(self, file_name: str) -> mne.io.Raw:
+        # Retain only specified EEG channels prior to further processing.
+        valid_channels = [ch for ch in self.CHANNELS_OF_INTEREST if ch in combined_raw.ch_names]
+        combined_raw.pick_channels(valid_channels)
+        print(f"Selected channels for subject {subject_id}: {combined_raw.ch_names}")
+
+        return combined_raw
+
+    def load_and_preprocess_file(self, file_path: str) -> mne.io.Raw:
         """
-        Load a CNT file and perform standard preprocessing:
-          - Set channel types for non-EEG channels if they exist.
-          - Apply a standard montage ('standard_1005').
-          - Re-reference using A1 and A2, then drop these channels.
+        Load and preprocess an individual CNT file, performing standard EEG preprocessing steps:
+        - Assign correct types to non-EEG channels.
+        - Apply EEG montage used during recording (standard_1005).
+        - Re-reference EEG data using reference channels (A1, A2), then drop them.
 
         Parameters:
-        - file_name (str): Path to the CNT file.
+        - file_path (str): Full path to the CNT file.
 
         Returns:
-        - raw (mne.io.Raw): Preprocessed raw EEG data.
+        - raw (mne.io.Raw): Preprocessed EEG data.
         """
-        print(f"Loading raw data from {file_name}...")
-        raw = mne.io.read_raw_cnt(file_name, preload=True)
-        print("Raw data loaded successfully!")
-        
-        # Filter NON_EEG_CHANNELS to only include channels that exist in raw data
-        existing_channels = {ch: typ for ch, typ in self.NON_EEG_CHANNELS.items() if ch in raw.ch_names}
-        raw.set_channel_types(existing_channels)
-        print("Channel types adjusted for non-EEG channels.")
+        print(f"Loading raw EEG data from {file_path}...")
+        raw = mne.io.read_raw_cnt(file_path, preload=True)
+        print("Raw EEG data loaded successfully.")
 
-        # Apply a standard EEG montage
+        # Set types for existing non-EEG channels only.
+        existing_non_eeg_channels = {ch: typ for ch, typ in self.NON_EEG_CHANNELS.items() if ch in raw.ch_names}
+        raw.set_channel_types(existing_non_eeg_channels)
+        print("Non-EEG channel types assigned correctly.")
+
+        # Apply the standard montage for spatial referencing.
         montage = mne.channels.make_standard_montage('standard_1005')
         raw.set_montage(montage, match_case=False, on_missing='ignore')
-        print("Montage set for raw EEG data.")
+        print("Standard EEG montage (standard_1005) applied.")
 
-        # Re-reference EEG data using A1 and A2
+        # Re-reference EEG signals to channels A1 and A2.
         raw.set_eeg_reference(ref_channels=['A1', 'A2'], projection=False)
-        print("EEG data re-referenced using A1 and A2.")
+        print("EEG data re-referenced to channels A1 and A2.")
 
-        # Drop reference channels if they exist
-        ref_channels = ['A1', 'A2']
-        existing_refs = [ch for ch in ref_channels if ch in raw.ch_names]
-        if existing_refs:
-            raw.drop_channels(existing_refs)
-            print(f"Reference channels {existing_refs} dropped. Remaining channels:")
+        # Drop reference channels if present in the data.
+        ref_channels_to_drop = [ch for ch in ['A1', 'A2'] if ch in raw.ch_names]
+        if ref_channels_to_drop:
+            raw.drop_channels(ref_channels_to_drop)
+            print(f"Dropped reference channels: {ref_channels_to_drop}. Remaining channels:")
             print(raw.info['ch_names'])
         else:
             print("No reference channels found to drop.")
 
         return raw
 
-
-    def combine_raw_files(self, file_names: List[str]) -> mne.io.Raw:
+    def combine_raw_files(self, file_paths: List[str]) -> mne.io.Raw:
         """
-        Load and concatenate raw data from a list of CNT files.
+        Load, preprocess, and concatenate EEG data from multiple CNT files.
 
         Parameters:
-        - file_names (List[str]): List of paths to CNT files.
+        - file_paths (List[str]): List containing paths to CNT files for a single subject.
 
         Returns:
-        - raw_combined (mne.io.Raw): Concatenated EEG data.
+        - raw_combined (mne.io.Raw): Concatenated raw EEG data from all provided files.
         """
-        raw_list = [self.load_and_preprocess_file(f) for f in file_names]
+        # Load and preprocess each individual CNT file.
+        raw_files = [self.load_and_preprocess_file(path) for path in file_paths]
 
-        # Ensure calibration factors (_cals) match across files.
-        common_cals = raw_list[0]._cals.copy()
-        for raw in raw_list:
-            raw._cals = common_cals
+        # Ensure calibration factors match across all files for consistency.
+        common_calibration = raw_files[0]._cals.copy()
+        for raw in raw_files:
+            raw._cals = common_calibration
 
-        raw_combined = mne.concatenate_raws(raw_list, preload=True)
-        print("All files have been concatenated.")
+        # Concatenate all preprocessed raw EEG files into a single data object.
+        raw_combined = mne.concatenate_raws(raw_files, preload=True)
+        print("Successfully concatenated EEG data from multiple CNT files.")
+
         return raw_combined
