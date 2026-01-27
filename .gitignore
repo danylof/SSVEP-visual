@@ -1,0 +1,131 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# =========================
+# Virtual Environments
+# =========================
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# =========================
+# Jupyter Notebooks
+# =========================
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# =========================
+# IDE / Editors
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# =========================
+# Testing
+# =========================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# =========================
+# Data Files (Large/Sensitive)
+# =========================
+# EEG data files - too large for git
+*.cnt
+*.fdt
+*.set
+*.edf
+*.bdf
+*.gdf
+*.vhdr
+*.vmrk
+*.eeg
+
+# Subject data folders
+jason/
+my/
+
+# =========================
+# Output Files
+# =========================
+FB-CCA/output/
+FB-CCA/saved_models/
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# OS-specific
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =========================
+# Temporary / Old Files
+# =========================
+*.tmp
+*.temp
+*.bak
+*.backup
+*_old.py
+*_new.py
+*old.ipynb
+SSVEPHHM.py
+SSVEPHHM+Bayes.py
+SNR_comparison.png
+"Task settings.docx"
+Task settings.docx
+Subject 14 5 sessions filtered.*
+
+# =========================
+# Documentation builds
+# =========================
+docs/_build/
+site/
