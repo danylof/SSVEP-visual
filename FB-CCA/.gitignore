@@ -79,7 +79,8 @@ coverage.xml
 # =========================
 # Output Files
 # =========================
-output/
+# Keep output/*.png for GitHub README images
+!output/*.png
 saved_models/
 *.pkl
 *.joblib

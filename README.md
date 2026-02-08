@@ -125,6 +125,9 @@ Implementation and comparison of feature extraction techniques:
 ## Quick Start
 
 ```python
+import sys
+sys.path.insert(0, 'FB-CCA')
+
 from dataset import EEGDataset
 from preprocessing import EEGPreprocessor
 from feature_extraction import FeatureExtractor
@@ -157,15 +160,15 @@ accuracy, metrics = classifier.evaluate_with_metrics(features, labels, stim_freq
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ssvep-fbcca.git
-cd ssvep-fbcca/FB-CCA
+git clone https://github.com/danylof/SSVEP-visual.git
+cd SSVEP-visual
 
 # Create virtual environment (recommended)
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -r FB-CCA/requirements.txt
 ```
 
 ### Requirements
@@ -176,23 +179,33 @@ pip install -r requirements.txt
 ## Project Structure
 
 ```
-FB-CCA/
-├── FB-CCA.ipynb          # Main analysis notebook
-├── benchmark.py          # Benchmark dataset loader and evaluation
-├── cca_utils.py          # Fast SVD-based CCA (key contribution)
-├── classifier.py         # Classification and evaluation metrics
-├── dataset.py            # EEG data loading utilities
-├── feature_extraction.py # CCA and FB-CCA feature extraction
-├── preprocessing.py      # EEG preprocessing with artifact rejection
-├── utils.py              # Utility functions
-├── requirements.txt      # Python dependencies
-├── pytest.ini            # Test configuration
-├── .gitignore            # Git ignore rules
-├── tests/                # Unit tests (31 tests)
-│   ├── __init__.py
-│   ├── test_cca_utils.py # Tests for CCA functions
-│   └── test_benchmark.py # Benchmark performance tests
-└── output/               # Generated figures (gitignored)
+├── FB-CCA.ipynb              # Main FB-CCA analysis notebook (run this!)
+├── SSVEP_visual_analysis.ipynb  # Visual EEG/SSVEP spectral assessment
+├── README.md
+├── LICENSE
+├── FB-CCA/                   # Core library modules
+│   ├── cca_utils.py          # Fast SVD-based CCA (key contribution)
+│   ├── classifier.py         # Classification and evaluation metrics
+│   ├── dataset.py            # EEG data loading utilities
+│   ├── feature_extraction.py # CCA and FB-CCA feature extraction
+│   ├── preprocessing.py      # EEG preprocessing with artifact rejection
+│   ├── utils.py              # Utility functions
+│   ├── benchmark.py          # Benchmark dataset loader and evaluation
+│   ├── event_mapping.json    # Stimulus event → frequency mapping
+│   ├── requirements.txt      # Python dependencies
+│   ├── pytest.ini            # Test configuration
+│   ├── .gitignore            # Git ignore rules
+│   ├── tests/                # Unit tests (31 tests)
+│   │   ├── __init__.py
+│   │   ├── test_cca_utils.py # Tests for CCA functions
+│   │   └── test_benchmark.py # Benchmark performance tests
+│   └── output/               # Generated figures
+│       ├── comprehensive_comparison.png
+│       ├── cca_vs_fbcca_comparison.png
+│       ├── weight_optimization.png
+│       ├── subband_analysis.png
+│       ├── evaluation_metrics.png
+│       └── window_length_analysis.png
 ```
 
 ## Running Tests

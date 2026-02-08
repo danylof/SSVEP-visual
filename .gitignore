@@ -1,4 +1,4 @@
-# =========================
+﻿# =========================
 # Python
 # =========================
 __pycache__/
@@ -83,7 +83,7 @@ my/
 # =========================
 # Output Files
 # =========================
-FB-CCA/output/
+# Keep FB-CCA/output/*.png for GitHub README images
 FB-CCA/saved_models/
 *.pkl
 *.joblib
@@ -123,9 +123,11 @@ SNR_comparison.png
 "Task settings.docx"
 Task settings.docx
 Subject 14 5 sessions filtered.*
+SSVEP load and preprocess raw data.ipynb
 
 # =========================
 # Documentation builds
 # =========================
 docs/_build/
 site/
+SSVEP_visual_analysis_merged.ipynb
