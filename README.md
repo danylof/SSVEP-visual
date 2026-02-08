@@ -76,8 +76,8 @@ Based on the original FB-CCA paper (Chen et al., 2015) and BETA benchmark studie
 Classification accuracy varies significantly by stimulus frequency. **Frequencies in the 10-20 Hz range consistently achieve higher F1 scores (0.70-0.85)** compared to lower (6-8 Hz) or higher (25-30 Hz) frequencies.
 
 This finding aligns with established SSVEP research:
-- [Zhu et al. (2010)](https://doi.org/10.1088/1741-2560/7/4/046017) - Optimal SSVEP responses at 10-25 Hz
-- [Volosyak et al. (2011)](https://doi.org/10.1007/s12559-011-9096-3) - Peak performance around 12-15 Hz  
+- [Zhu et al. (2010)](https://doi.org/10.1155/2010/702357) - Optimal SSVEP responses at 10-25 Hz
+- [Volosyak et al. (2011)](https://doi.org/10.1088/1741-2560/8/3/036020) - Peak performance around 12-15 Hz  
 - [Nakanishi et al. (2015)](https://doi.org/10.1371/journal.pone.0140703) - High accuracy in 8-15.8 Hz range
 
 **Practical Implication**: System performance can be significantly improved by selecting stimulus frequencies in the 10-15 Hz range where SSVEP responses are naturally stronger.
